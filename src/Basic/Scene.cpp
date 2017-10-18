@@ -2,38 +2,59 @@
 #include "PickTool.h"
 #include "FrameBuffer.h"
 #include "Shader.h"
-namespace Basic {
-	Scene* Scene::m_Inst(0);
-	Scene* Scene::Inst()
+#include "MeshManager.h"
+#include "ShaderManager.h"
+namespace Core {
+	
+	void Scene::addRenderMesh(const string& shader_name, const string& mesh_name)
 	{
-		if (m_Inst == nullptr)
-			m_Inst = new Scene;
-		return m_Inst;
+		if (ShaderManager::getSingleton()->getByName(shader_name) == NULL || MeshManager::getSingleton()->getByName(shader_name) == NULL)
+			return;
+
+		_shader_mesh[shader_name].push_back(mesh_name);
+
+		
 	}
-	void Scene::addEntity(std::string name, Entity::ptr entity)
+	void Scene::removeRenderMesh(const string& mesh_name)
 	{
-		//if(_entity_map.find(name)!=_entity_map.end())
-		_entity_map[name] = entity;
+		
 	}
-	void Scene::removeEntity(std::string name)
-	{
-		if (_entity_map.find(name) != _entity_map.end())
-			_entity_map.erase(name);
-	}
-	void Scene::render(RenderParams* params)
-	{
-		//遍历所有的灯光，作用于所有的mesh，后期考虑defer render加入	
-		update(params->currTime());
-		for (auto it = _entity_map.begin(); it != _entity_map.end(); it++)
+	void Scene::render()
+	{		
+		if (_plugin_map.size() != 0)
 		{
-			it->second->setupLights(_lights);
-			it->second->draw(params);
+			for (auto p : _plugin_map)
+				p.second->render((ptr)this);
 		}
-			
+		else 
+		{
+
+			for (auto m : _shader_mesh)
+			{
+				
+				Shader::ptr shader = ShaderManager::getSingleton()->getByName(m.first);
+				shader->use();
+				shader->setMat4("view", _camera->getViewMatrix());
+				shader->setMat4("projection", _camera->getProjectionMatrix());
+				for (int i = 0; i < m.second.size(); ++i)
+				{
+					string mesh_name = m.second.at(i);
+					Mesh::ptr mesh = MeshManager::getSingleton()->getByName(mesh_name);
+					mesh->setLights(_lights);
+					mesh->draw(shader);
+				}
+				
+			}
+		}
 	}
-	void Scene::update(float time)
+	
+	vector<Mesh::ptr> Scene::getMeshs()
 	{
-		//场景有哪些需要更新的？
+		vector<Mesh::ptr> meshs;
+		for (auto it : _shader_mesh)
+		{
+			meshs.push_back
+		}
 	}
 
 	void Scene::pickRender(int width, int height)

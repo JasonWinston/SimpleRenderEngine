@@ -10,14 +10,15 @@
 #include "FreeImage.h"
 #include <map>
 #include <vector>
-namespace Basic {
+#include "Texture.h"
+namespace Core {
 	class TextureManager//这个一定要重构，所有的纹理怎么可能只用一个manager啊！怎么改？？
 	{
 	public:
 		static TextureManager* Inst();
 		virtual ~TextureManager();
 
-
+		Texture::ptr createFromFile(const char* filename);
 		bool loadTexture(const char* filename, const char* texName, GLenum image_format = GL_RGB, GLint internal_format = GL_RGB, GLint level = 0, GLint border = 0);
 
 		bool unloadTexture(const char* texName);

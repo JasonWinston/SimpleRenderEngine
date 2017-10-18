@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-namespace Basic {
+namespace Core {
 
 
 	Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
@@ -15,7 +15,7 @@ namespace Basic {
 		std::ifstream vShaderFile;
 		std::ifstream fShaderFile;
 		std::ifstream gShaderFile;
-		// 确保可以抛出异常
+		
 		vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -25,16 +25,16 @@ namespace Basic {
 			vShaderFile.open(vertexPath);
 			fShaderFile.open(fragmentPath);
 			std::stringstream vShaderStream, fShaderStream;
-			//读取文件到stream
+			
 			vShaderStream << vShaderFile.rdbuf();
 			fShaderStream << fShaderFile.rdbuf();
 			
 			vShaderFile.close();
 			fShaderFile.close();
-			// stream转到string
+			
 			vertexCode = vShaderStream.str();
 			fragmentCode = fShaderStream.str();
-			// geometry shader判断
+			
 			if (geometryPath != nullptr)
 			{
 				gShaderFile.open(geometryPath);
@@ -50,17 +50,17 @@ namespace Basic {
 		}
 		const char* vShaderCode = vertexCode.c_str();
 		const char * fShaderCode = fragmentCode.c_str();
-		// 编译
+
 		unsigned int vertex, fragment;
 		int success;
 		char infoLog[512];
-		//glewInit();
-		vertex = glCreateShader(GL_VERTEX_SHADER);
+		
+		vertex = glCreateShader(GL_VERTEXshader);
 		glShaderSource(vertex, 1, &vShaderCode, NULL);
 		glCompileShader(vertex);
 		checkCompileErrors(vertex, "VERTEX");
 		
-		fragment = glCreateShader(GL_FRAGMENT_SHADER);
+		fragment = glCreateShader(GL_FRAGMENTshader);
 		glShaderSource(fragment, 1, &fShaderCode, NULL);
 		glCompileShader(fragment);
 		checkCompileErrors(fragment, "FRAGMENT");
@@ -69,7 +69,7 @@ namespace Basic {
 		if (geometryPath != nullptr)
 		{
 			const char * gShaderCode = geometryCode.c_str();
-			geometry = glCreateShader(GL_GEOMETRY_SHADER);
+			geometry = glCreateShader(GL_GEOMETRYshader);
 			glShaderSource(geometry, 1, &gShaderCode, NULL);
 			glCompileShader(geometry);
 			checkCompileErrors(geometry, "GEOMETRY");
